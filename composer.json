@@ -1,0 +1,29 @@
+{
+    "name": "v-ideogam-es/wikidata-to-schema-org-migrator",
+    "description": "Wikidata to Schema.org data migration utility.",
+    "type": "library",
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^1.11",
+        "phpspec/phpspec": "^2.5",
+        "symfony/var-dumper": "^3.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "James Benner",
+            "email": "james.benner@gmail.com",
+            "homepage": "http://www.jamesbenner.com/",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "VideoGames\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": "~5.5|~7.0",
+        "illuminate/support": "^5.1"
+    }
+}

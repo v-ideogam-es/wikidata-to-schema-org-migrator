@@ -1,0 +1,5 @@
+formatter.name: pretty
+suites:
+  videogames_suite:
+    namespace: VideoGames
+    psr4_prefix: VideoGames
