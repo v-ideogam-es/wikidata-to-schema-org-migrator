@@ -14,8 +14,7 @@ if (!is_dir('./data')) {
 
 foreach ($migrator->schemaOrgGames as $game) {
     $filename = str_slug($game->name);
-    $json     = json_encode($game, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    $json     = json_encode($game, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
 
-    dump($json);
     file_put_contents("./data/${filename}.jsonld", $json);
 }

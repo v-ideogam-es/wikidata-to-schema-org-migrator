@@ -17,6 +17,9 @@ class SchemaOrgGame implements JsonSerializable
     public $gamePlatform;
 
     /** @var string */
+    public $genre;
+
+    /** @var string */
     public $inLanguage = 'en-US';
 
     /** @var string */
@@ -44,6 +47,10 @@ class SchemaOrgGame implements JsonSerializable
         if (isset($wikidataGame->game_mode)) {
             $this->setPlayMode($wikidataGame->game_mode);
         }
+
+        if (isset($wikidataGame->genre)) {
+            $this->setGenre($wikidataGame->genre);
+        }
     }
 
     public function jsonSerialize() {
@@ -69,6 +76,40 @@ class SchemaOrgGame implements JsonSerializable
             '@type' => 'Organization',
             'name'  => $author
         ];
+    }
+
+    public function setGenre($genre) {
+        $map = [
+            'action game'       => 'Action',
+            "beat 'em up"       => "Beat 'em up",
+            'fighting game'     => 'Fighting',
+            'pinball'           => 'Pinball',
+            'platform game'     => 'Platformer',
+            'puzzle'            => 'Puzzle',
+            'racing video game' => 'Racing'
+        ];
+
+        if (!isset($map[$genre])) {
+            return;
+        }
+
+        $genre = $map[$genre];
+
+        if (!$this->genre) {
+            $this->genre = $genre;
+
+            return;
+        }
+
+        if (is_string($this->genre) && $this->genre !== $genre) {
+            $this->genre = [$this->genre, $genre];
+
+            return;
+        }
+
+        if (is_array($this->genre) && !in_array($genre, $this->genre)) {
+            $this->genre[] = $genre;
+        }
     }
 
     public function setPlayMode($playMode) {
