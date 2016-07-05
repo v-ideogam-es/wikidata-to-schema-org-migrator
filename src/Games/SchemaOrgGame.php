@@ -2,13 +2,14 @@
 
 namespace VideoGames\Games;
 
-use stdClass;
+use DomainException;
 use JsonSerializable;
+use stdClass;
 
 /**
  * @see https://schema.org/VideoGame
  */
-class SchemaOrgGame implements JsonSerializable
+class SchemaOrgGame extends AbstractGame implements JsonSerializable
 {
     /** @var stdClass */
     public $author;
@@ -35,10 +36,11 @@ class SchemaOrgGame implements JsonSerializable
     public $sameAs;
 
     public function __construct(stdClass $wikidataGame) {
-        $this->gamePlatform  = ($wikidataGame->platform === 'Sega Mega Drive') ? 'Sega Genesis' : $wikidataGame->platform;
         $this->name          = $wikidataGame->name;
         $this->publisher     = $wikidataGame->publisher;
         $this->sameAs        = $wikidataGame->_game;
+
+        $this->setGamePlatform($wikidataGame->platform);
 
         if (isset($wikidataGame->developer)) {
             $this->setAuthor($wikidataGame->developer);
@@ -71,75 +73,71 @@ class SchemaOrgGame implements JsonSerializable
         return $schemaOrgGame;
     }
 
-    public function setAuthor($author) {
+    public function setAuthor(string $author) {
         $this->author = (object) [
             '@type' => 'Organization',
             'name'  => $author
         ];
     }
 
-    public function setGenre($genre) {
-        $map = [
-            'action game'       => 'Action',
-            "beat 'em up"       => "Beat 'em up",
-            'fighting game'     => 'Fighting',
-            'pinball'           => 'Pinball',
-            'platform game'     => 'Platformer',
-            'puzzle'            => 'Puzzle',
-            'racing video game' => 'Racing'
-        ];
+    public function setGamePlatform(string $gamePlatform) {
+        // Temporariliy translating "Mega Drive" to "Genesis" since we're only
+        // migrating US games right now.
+        $map = collect([
+            'Sega Mega Drive' => 'Sega Genesis'
+        ]);
 
-        if (!isset($map[$genre])) {
+        if (!$map->keys()->contains($gamePlatform)) {
             return;
         }
 
-        $genre = $map[$genre];
-
-        if (!$this->genre) {
-            $this->genre = $genre;
-
-            return;
-        }
-
-        if (is_string($this->genre) && $this->genre !== $genre) {
-            $this->genre = [$this->genre, $genre];
-
-            return;
-        }
-
-        if (is_array($this->genre) && !in_array($genre, $this->genre)) {
-            $this->genre[] = $genre;
-        }
+        $this->gamePlatform = $map->get($gamePlatform);
     }
 
-    public function setPlayMode($playMode) {
+    public function setGenre(string $genre) {
+        $blacklist = collect([
+            'isometric graphics in video games and pixel art'
+        ]);
+
+        if ($blacklist->contains($genre)) {
+            return;
+        }
+
+        $map = collect([
+            'action game'                => 'Action',
+            'action role-playing game'   => 'Action-adventure',
+            "beat 'em up"                => "Beat 'em up",
+            'fighting game'              => 'Fighting',
+            'first-person shooter'       => 'First-person shooter',
+            'pinball'                    => 'Pinball',
+            'platform game'              => 'Platformer',
+            'puzzle'                     => 'Puzzle',
+            'racing video game'          => 'Racing',
+            'role-playing video game'    => 'Role-playing',
+            "shoot 'em up"               => "Shoot 'em up",
+            'sports video game'          => 'Sports',
+            'tactical role-playing game' => 'Tactical role-playing'
+        ]);
+
+        if (!$map->keys()->contains($genre)) {
+            throw new DomainException("Unknown genre: ${genre}");
+        }
+
+        $this->genre = $map->get($genre);
+    }
+
+    public function setPlayMode(string $playMode) {
         /** @see https://schema.org/GamePlayMode */
-        $map = [
+        $map = collect([
             'cooperative gameplay'     => 'CoOp',
             'multiplayer video game'   => 'MultiPlayer',
             'single-player video game' => 'SinglePlayer',
-        ];
+        ]);
 
-        if (!isset($map[$playMode])) {
-            return;
+        if (!$map->keys()->contains($playMode)) {
+            throw new DomainException("Unknown play mode: ${playMode}");
         }
 
-        $playMode = $map[$playMode];
-
-        if (!$this->playMode) {
-            $this->playMode = $playMode;
-
-            return;
-        }
-
-        if (is_string($this->playMode) && $this->playMode !== $playMode) {
-            $this->playMode = [$this->playMode, $playMode];
-
-            return;
-        }
-
-        if (is_array($this->playMode) && !in_array($playMode, $this->playMode)) {
-            $this->playMode[] = $playMode;
-        }
+        $this->playMode = $map->get($playMode);
     }
 }
