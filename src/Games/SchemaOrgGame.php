@@ -56,19 +56,17 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
     }
 
     public function jsonSerialize() {
-        $properties    = get_object_vars($this);
+        $properties    = collect(get_object_vars($this));
         $schemaOrgGame = (object) [
             '@context' => 'http://schema.org',
             '@type'    => 'VideoGame'
         ];
 
-        foreach ($properties as $propertyName => $propertyValue) {
-            if ($propertyValue === null) {
-                continue;
-            }
-
-            $schemaOrgGame->{$propertyName} = $propertyValue;
-        }
+        $properties->filter(function ($value) {
+            return $value !== null;
+        })->each(function ($value, $property) use ($schemaOrgGame) {
+            $schemaOrgGame->{$property} = $value;
+        });
 
         return $schemaOrgGame;
     }
