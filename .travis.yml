@@ -1,12 +1,9 @@
 language: php
 php:
   - 7.0
-  - hhvm
-  - hhvm-nightly
   - nightly
 matrix:
   allow_failures:
-    - php: hhvm-nightly
     - php: nightly
-before_script: composer install --ignore-platform-reqs
+before_script: composer install
 script: vendor/bin/phpspec run
