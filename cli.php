@@ -16,5 +16,5 @@ foreach ($migrator->schemaOrgGames as $game) {
     $filename = str_slug($game->name);
     $json     = json_encode($game, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
 
-    file_put_contents("./data/${filename}.jsonld", $json);
+    file_put_contents('./data/' . $game->getFilename(), $json);
 }

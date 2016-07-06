@@ -138,4 +138,21 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
 
         $this->playMode = $map->get($playMode);
     }
+
+    public function getFilename() {
+        $letters  = str_split($this->name);
+        $expanded = '';
+
+        foreach ($letters as $index => $letter) {
+            if (ctype_upper($letter) && $index > 0 && ctype_lower($letters[$index - 1])) {
+                $expanded .= ' ';
+            }
+
+            $expanded .= $letter;
+        }
+
+        $basename = str_slug($expanded);
+
+        return "${basename}.jsonld";
+    }
 }
