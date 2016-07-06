@@ -9,7 +9,7 @@ class MigratorSpec extends ObjectBehavior
 {
     function let()
     {
-        $this->beConstructedWith('data.json');
+        $this->beConstructedWith('spec/fixtures/data.json');
     }
 
     function it_is_initializable()
