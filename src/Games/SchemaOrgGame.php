@@ -5,12 +5,15 @@ namespace VideoGames\Games;
 use DomainException;
 use JsonSerializable;
 use stdClass;
+use VideoGames\Games\Traits\Filenameable;
 
 /**
  * @see https://schema.org/VideoGame
  */
 class SchemaOrgGame extends AbstractGame implements JsonSerializable
 {
+    use Filenameable;
+
     /** @var stdClass */
     public $author;
 
@@ -36,9 +39,9 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
     public $sameAs;
 
     public function __construct(stdClass $wikidataGame) {
-        $this->name          = $wikidataGame->name;
-        $this->publisher     = $wikidataGame->publisher;
-        $this->sameAs        = $wikidataGame->_game;
+        $this->name      = $wikidataGame->name;
+        $this->publisher = $wikidataGame->publisher;
+        $this->sameAs    = $wikidataGame->_game;
 
         $this->setGamePlatform($wikidataGame->platform);
 
@@ -55,6 +58,9 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
         }
     }
 
+    /**
+     * @link http://php.net/manual/en/class.jsonserializable.php
+     */
     public function jsonSerialize() {
         $properties    = collect(get_object_vars($this));
         $schemaOrgGame = (object) [
@@ -85,7 +91,7 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
             'Sega Mega Drive' => 'Sega Genesis'
         ]);
 
-        if (!$map->keys()->contains($gamePlatform)) {
+        if (!$map->has($gamePlatform)) {
             return;
         }
 
@@ -117,11 +123,11 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
             'tactical role-playing game' => 'Tactical role-playing'
         ]);
 
-        if (!$map->keys()->contains($genre)) {
+        if (!$map->has($genre)) {
             throw new DomainException("Unknown genre: ${genre}");
         }
 
-        $this->genre = $map->get($genre);
+        $this->set('genre', $map->get($genre));
     }
 
     public function setPlayMode(string $playMode) {
@@ -132,27 +138,10 @@ class SchemaOrgGame extends AbstractGame implements JsonSerializable
             'single-player video game' => 'SinglePlayer',
         ]);
 
-        if (!$map->keys()->contains($playMode)) {
+        if (!$map->has($playMode)) {
             throw new DomainException("Unknown play mode: ${playMode}");
         }
 
-        $this->playMode = $map->get($playMode);
-    }
-
-    public function getFilename() {
-        $letters  = str_split($this->name);
-        $expanded = '';
-
-        foreach ($letters as $index => $letter) {
-            if (ctype_upper($letter) && $index > 0 && ctype_lower($letters[$index - 1])) {
-                $expanded .= ' ';
-            }
-
-            $expanded .= $letter;
-        }
-
-        $basename = str_slug($expanded);
-
-        return "${basename}.jsonld";
+        $this->set('playMode', $map->get($playMode));
     }
 }

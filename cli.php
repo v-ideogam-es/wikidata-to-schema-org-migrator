@@ -12,9 +12,8 @@ if (!is_dir('./data')) {
     mkdir('data');
 }
 
-foreach ($migrator->schemaOrgGames as $game) {
-    $filename = str_slug($game->name);
-    $json     = json_encode($game, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+$migrator->schemaOrgGames->each(function ($game) {
+    $json = json_encode($game, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
 
     file_put_contents('./data/' . $game->getFilename(), $json);
-}
+});

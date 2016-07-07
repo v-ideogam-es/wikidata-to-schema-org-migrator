@@ -4,7 +4,7 @@ namespace VideoGames\Games;
 
 abstract class AbstractGame
 {
-    public function __set($property, $value) {
+    public function set($property, $value) {
         $properties = array_keys(get_object_vars($this));
 
         if (!in_array($property, $properties)) {
@@ -19,6 +19,10 @@ abstract class AbstractGame
 
         if (is_array($this->{$property}) && !in_array($value, $this->{$property})) {
             $this->{$property}[] = $value;
+
+            return;
         }
+
+        $this->{$property} = $value;
     }
 }
